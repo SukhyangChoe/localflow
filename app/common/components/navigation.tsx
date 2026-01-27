@@ -16,8 +16,10 @@ import { DropdownMenuContent,
     DropdownMenuGroup} from "./ui/dropdown-menu";
 
 export default function Navigation({
-    isLoggedIn, hasNotifications, hasMessages
+    username, avatar, isLoggedIn, hasNotifications, hasMessages
 }: {
+    username: string;
+    avatar: string;
     isLoggedIn: boolean;
     hasNotifications: boolean;
     hasMessages: boolean;
@@ -26,8 +28,6 @@ export default function Navigation({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const location = useLocation();
   const isJoinPage = location.pathname === "/auth/join";
-  const isHomePage = location.pathname === "/";
-  const isSelectPage = location.pathname === "/select";
   const isBoardListPage = location.pathname === "/board/search";
   
   // board_list 페이지에서 전달된 검색 정보 가져오기
@@ -146,18 +146,6 @@ export default function Navigation({
                     <MoonIcon className="size-4" />
                   )}
                 </Button>
-
-                {/* 대화형/선택형 메인화면 전환 버튼 */}
-                {isHomePage && (
-                  <Button variant="outline" className="text-xs" asChild>
-                    <Link to="/select">Selection</Link>
-                  </Button>
-                )}
-                {isSelectPage && (
-                  <Button variant="outline" className="text-xs" asChild>
-                    <Link to="/">Interactive</Link>
-                  </Button>
-                )}
 
                 {/* Login 버튼 - 모달 열기 */}
                 <Button variant="outline" className={`text-xs cursor-pointer ${isJoinPage ? "hidden" : ""}`}

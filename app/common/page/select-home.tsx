@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "~/common/components/ui/select";
 import { CalendarIcon, Search, Sparkles } from "lucide-react";
-import { type MetaFunction, useNavigate } from "react-router";
+import { type MetaFunction, useNavigate, Link } from "react-router";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~/common/components/ui/dialog";
 import { Calendar } from "~/common/components/ui/calendar";
@@ -86,7 +86,13 @@ export default function SelectHomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-20">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-20 relative">
+      {/* 전환 버튼 - 우측 상단 (navigation 바 밑) */}
+      <div className="absolute top-20 right-5 md:right-20">
+        <Button variant="ghost" className="text-xs border-none shadow-none" asChild>
+          <Link to="/">Interactive →</Link>
+        </Button>
+      </div>
       <div className="w-full max-w-3xl">
         <h1 className="text-4xl font-semibold text-center mb-12">
           What is your dream trip?

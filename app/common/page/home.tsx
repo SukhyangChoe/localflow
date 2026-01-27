@@ -1,6 +1,7 @@
 import { Input } from "~/common/components/ui/input";
 import { Search, Sparkles } from "lucide-react";
 import { Button } from "~/common/components/ui/button";
+import { Link } from "react-router";
 import type { MetaFunction } from "react-router";
 
 export const meta: MetaFunction = () => {
@@ -12,7 +13,13 @@ export const meta: MetaFunction = () => {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+      {/* 전환 버튼 - 우측 상단 (navigation 바 밑) */}
+      <div className="absolute top-20 right-5 md:right-20">
+        <Button variant="ghost" className="text-xs border-none shadow-none" asChild>
+          <Link to="/select">Selection →</Link>
+        </Button>
+      </div>
       <div className="w-full max-w-2xl">
         <h1 className="text-4xl font-semibold text-center mb-30">
           What is your dream trip?

@@ -1,63 +1,137 @@
-import { useState } from "react";
-import { Link } from "react-router";
+import { z } from "zod";
+import { useEffect } from "react";
+import { Link, type ActionFunctionArgs, redirect, useFetcher, useNavigate } from "react-router";
 import { Button } from "~/common/components/ui/button";
 import { Input } from "~/common/components/ui/input";
 import { Label } from "~/common/components/ui/label";
 import { Separator } from "~/common/components/ui/separator";
+import { makeSSRClient } from "~/supa-client";
 
 interface LoginFormProps {
   onSuccess?: () => void;
 }
 
-export function LoginForm({ onSuccess }: LoginFormProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+const formSchema = z.object({
+  email: z.string({ message: "Email is required" }).email("Invalid email address"),
+  password: z.string({ message: "Password is required" }).min(8, {message: "Password must be at least 8 characters long"}),
+});
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+type ActionData = 
+  | { loginErrors: null; formErrors: { email?: string[]; password?: string[] } }
+  | { loginErrors: string; formErrors: null }
+  | { success: true }
+  | undefined;
 
-    try {
-      // 여기에 로그인 로직 추가
-      // await login(email, password);
-      
-      // 성공 시
-      onSuccess?.();
-    } catch (error) {
-      console.error("Login failed:", error);
-    } finally {
-      setIsLoading(false);
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  try {
+    const parseResult = formSchema.safeParse(Object.fromEntries(formData));
+    
+    if (!parseResult.success) {
+      return {
+        loginErrors: null,
+        formErrors: parseResult.error.flatten().fieldErrors,
+      };
     }
-  };
+    
+    const { email, password } = parseResult.data;
+    const { client, headers } = makeSSRClient(request);
+    const { error: loginError } = await client.auth.signInWithPassword({
+      email,
+      password
+    });
+    
+    if (loginError) {
+      return {
+        loginErrors: loginError.message,
+        formErrors: null,
+      };
+    }
+
+    // 성공 응답을 먼저 반환 (모달을 닫을 수 있게 함)
+    // headers는 Response에 포함시켜 쿠키가 설정되도록 함
+    const response = new Response(
+      JSON.stringify({ success: true }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    // Set-Cookie 헤더들을 Response에 추가
+    headers.forEach((value, key) => {
+      response.headers.append(key, value);
+    });
+    return response;
+  } catch (error) {
+    // ZodError를 catch하여 안전하게 처리
+    if (error instanceof z.ZodError) {
+      return {
+        loginErrors: null,
+        formErrors: error.flatten().fieldErrors,
+      };
+    }
+    throw error;
+  }
+};
+
+export function LoginForm({ onSuccess }: LoginFormProps) {
+  const fetcher = useFetcher<typeof action>();
+  const navigate = useNavigate();
+  const actionData = fetcher.data as ActionData | undefined;
+  const isSubmitting = fetcher.state === "submitting";
+
+  // 로그인 성공 시 모달 닫기 및 리다이렉트
+  useEffect(() => {
+    if (actionData && "success" in actionData && actionData.success) {
+      onSuccess?.(); // 모달 닫기
+      window.location.href = "/";
+    }
+  }, [actionData, onSuccess]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <fetcher.Form method="post" action="/auth/login" className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
           type="email"
+          name="email"
           placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          //value={email}
+          //onChange={(e) => setEmail(e.target.value)}
           required
         />
+        {actionData && "formErrors" in actionData && actionData.formErrors?.email && (
+          <p className="text-sm text-destructive">
+            {actionData.formErrors.email.join(", ")}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
         <Input
           id="password"
           type="password"
+          name="password"
           placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          //value={password}
+          //onChange={(e) => setPassword(e.target.value)}
           required
         />
+        {actionData && "formErrors" in actionData && actionData.formErrors?.password && (
+          <p className="text-sm text-destructive">
+            {actionData.formErrors.password.join(", ")}
+          </p>
+        )}
       </div>
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Logging in..." : "Login"}
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? "Logging in..." : "Login"}
       </Button>
+      {actionData && "loginErrors" in actionData && actionData.loginErrors && (
+        <p className="text-sm text-destructive">{actionData.loginErrors}</p>
+      )}
 
       {/* 소셜 로그인 버튼들 */}
       <div className="space-y-3 pt-2">
@@ -89,13 +163,6 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         >
           Kakao로 로그인
         </Button>
-        <Button 
-          type="button" 
-          variant="outline" 
-          className="w-full bg-[#03C75A] hover:bg-[#03C75A]/90 text-white dark:bg-[#03C75A] dark:hover:bg-[#03C75A]/90 dark:text-white"
-        >
-          Naver로 로그인
-        </Button>
       </div>
 
       {/* 구분선 */}
@@ -111,6 +178,6 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       onClick={() => {onSuccess?.();}}>
         <Link to="/auth/join">회원가입</Link>
       </Button>
-    </form>
+    </fetcher.Form>
   );
 }
