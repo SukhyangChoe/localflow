@@ -6,4 +6,5 @@ export default [
     route("auth/login", "auth/modal/login.tsx"),
     route("select", "common/page/select-home.tsx"),
     route("board/search", "board/pages/boad-list.tsx"),
+    route("my/profile", "users/pages/profile.tsx"),
 ] satisfies RouteConfig;
