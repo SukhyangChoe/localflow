@@ -10,7 +10,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:typegen": "npx supabase gen types typescript --project-id goeehqeyuygtgypgchvh > database.types.ts"
+    "db:typegen": "npx -y supabase gen types typescript --project-id goeehqeyuygtgypgchvh > database.types.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
@@ -32,6 +32,7 @@
     "drizzle-orm": "^0.45.1",
     "isbot": "^5.1.31",
     "lucide-react": "^0.562.0",
+    "openai": "^6.17.0",
     "postgres": "^3.4.8",
     "react": "^19.2.3",
     "react-day-picker": "^9.13.0",

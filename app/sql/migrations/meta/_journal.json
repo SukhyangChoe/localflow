@@ -15,6 +15,20 @@
       "when": 1769520007531,
       "tag": "0001_strong_stark_industries",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770215307415,
+      "tag": "0002_exotic_masque",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1770215933978,
+      "tag": "0003_simple_nomad",
+      "breakpoints": true
     }
   ]
 }

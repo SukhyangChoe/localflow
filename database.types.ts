@@ -260,6 +260,58 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          board_id: number | null
+          created_at: string
+          is_read: boolean
+          notification_id: number
+          notification_type: Database["public"]["Enums"]["notification_type"]
+          source_profile_id: string
+          target_profile_id: string
+        }
+        Insert: {
+          board_id?: number | null
+          created_at?: string
+          is_read?: boolean
+          notification_id?: never
+          notification_type: Database["public"]["Enums"]["notification_type"]
+          source_profile_id: string
+          target_profile_id: string
+        }
+        Update: {
+          board_id?: number | null
+          created_at?: string
+          is_read?: boolean
+          notification_id?: never
+          notification_type?: Database["public"]["Enums"]["notification_type"]
+          source_profile_id?: string
+          target_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_board_id_boards_board_id_fk"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "boards"
+            referencedColumns: ["board_id"]
+          },
+          {
+            foreignKeyName: "notifications_source_profile_id_profiles_profile_id_fk"
+            columns: ["source_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "notifications_target_profile_id_profiles_profile_id_fk"
+            columns: ["target_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar: string | null
@@ -359,6 +411,14 @@ export type Database = {
         | "spa"
         | "other"
       join_path: "email" | "google" | "kakao" | "naver"
+      notification_type:
+        | "follow"
+        | "review"
+        | "reply"
+        | "mention"
+        | "tag"
+        | "system"
+        | "other"
       role: "traveler" | "creator"
       status: "draft" | "published" | "archived" | "hidden"
     }
@@ -502,6 +562,15 @@ export const Constants = {
         "other",
       ],
       join_path: ["email", "google", "kakao", "naver"],
+      notification_type: [
+        "follow",
+        "review",
+        "reply",
+        "mention",
+        "tag",
+        "system",
+        "other",
+      ],
       role: ["traveler", "creator"],
       status: ["draft", "published", "archived", "hidden"],
     },

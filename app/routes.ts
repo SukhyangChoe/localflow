@@ -7,4 +7,5 @@ export default [
     route("select", "common/page/select-home.tsx"),
     route("board/search", "board/pages/boad-list.tsx"),
     route("my/profile", "users/pages/profile.tsx"),
+    route("my/delete-old-noti", "users/pages/delete-old-noti.tsx"),
 ] satisfies RouteConfig;
